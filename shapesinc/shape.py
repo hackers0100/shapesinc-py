@@ -1,5 +1,11 @@
 import typing
 
+from .abc import (
+  ShapeUser as User,
+  ShapeChannel as Channel
+)
+
+
 class ShapeBase:
   def __init__(self, api_key: str, username: str):
     self.api_key = api_key
@@ -22,10 +28,10 @@ class ShapeBase:
 
 
 class Shape(ShapeBase):
-  def prompt(self, message: str, user = None, channel = None):
+  def prompt(self, message: str, user: User = None, channel: Channel = None):
     ...
 
 
 class AsyncShape(ShapeBase):
-  async def prompt(self, message: str, user = None, channel = None):
+  async def prompt(self, message: str, user: User = None, channel: Channel = None):
     ...
