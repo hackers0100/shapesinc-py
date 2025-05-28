@@ -8,6 +8,13 @@ The following section outlines the API of shapesinc module
 Shapes
 -------
 
+Bases
+~~~~~~
+.. autoclass:: shapesinc.ShapeBase
+    :members:
+
+.. autofunction:: shapesinc.shape
+
 Shape
 ~~~~~~
 
@@ -25,23 +32,23 @@ AsyncShape
 .. autoclass:: shapesinc.AsyncShape
     :members: prompt
 
-
 ABC
 ----
 
-Message
-~~~~~~~~
+Bases
+~~~~~~
 
-.. attributetable:: shapesinc.ShapeUser
+.. autoclass:: shapesinc.abc.ABCBase
+    :members:
 
 .. autoclass:: shapesinc.ShapeUser
     :members:
       
-.. attributetable:: shapesinc.ShapeChannel
-
 .. autoclass:: shapesinc.ShapeChannel
     :members:
 
+Message
+~~~~~~~~
 
 .. attributetable:: shapesinc.MessageContent
 
@@ -54,3 +61,14 @@ Message
     :members:
 
 .. autoclass:: shapesinc.ContentType
+
+.. autoclass:: shapesinc.PromptResponse
+
+.. autoclass:: shapesinc.abc.PromptResponse_Choice
+
+Errors
+~~~~~~~
+
+.. autoclass:: shapesinc.APIError
+
+.. autoclass:: shapesinc.RateLimitError
