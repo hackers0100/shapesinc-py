@@ -3,11 +3,15 @@ import json
 import typing
 import urllib.request as request
 
+from urllib.error import HTTPError
+
 from .abc import (
   ShapeUser as User,
   ShapeChannel as Channel,
   Message,
-  PromptResponse
+  PromptResponse,
+  APIError,
+  RateLimitError
 )
 
 
@@ -43,7 +47,7 @@ class ShapeBase:
 
   @property
   def type(self) -> typing.Literal["SYNCHRONOUS", "ASYNCHRONOUS"]:
-    """tells whether the instance is configured for asynchronous environment or synchronous"""
+    """Tells whether the instance is configured for asynchronous environment or synchronous"""
     raise NotImplementedError
 
   @property
@@ -131,6 +135,12 @@ class Shape(ShapeBase):
     --------
     :class:`shapesinc.PromptResponse`
       The response of the prompt.
+    Raises
+    -------
+    :class:`shapesinc.RateLimitError`
+      Error when we get ratelimited
+    :class:`shapesinc.APIError`
+      Error raised by shapes.inc API.
     """
     return super().prompt(*args, **kwargs)
 
@@ -143,8 +153,15 @@ class Shape(ShapeBase):
       }).encode(),
       headers = headers
     )
-    
-    return PromptResponse(**json.loads(request.urlopen(req).read()))
+    try:
+      req = request.urlopen(req)
+    except HTTPError as req:
+      res = json.loads(req.read())
+      e = RateLimitError if req.code == 429 else APIError
+      raise e(res)
+
+    res = json.loads(req.read())
+    return PromptResponse(shape=self, **res)
 
 
 class AsyncShape(ShapeBase):
@@ -195,6 +212,12 @@ class AsyncShape(ShapeBase):
     --------
     :class:`shapesinc.PromptResponse`
       The response of the prompt.
+    Raises
+    -------
+    :class:`shapesinc.RateLimitError`
+      Error when we get ratelimited
+    :class:`shapesinc.APIError`
+      Error raised by shapes.inc API.
     """
     return await super().prompt(*args, **kwargs)
   async def make_request(self, messages: list[dict[str, str]], headers: dict[str, str]) -> PromptResponse:
@@ -207,9 +230,14 @@ class AsyncShape(ShapeBase):
         },
         headers = headers
       )
+      sc = data.status
       res = await data.json()
       
-    return PromptResponse(**res)
+    if sc == 429:
+      raise RateLimitError(res)
+    if "error" in res:
+      raise APIError(res)
+    return PromptResponse(shape=self, **res)
 
 
 def shape(api_key: str, username: str, synchronous: bool = True) -> typing.Union[Shape, AsyncShape]:
