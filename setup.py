@@ -37,7 +37,7 @@ setuptools.setup(
   install_requires=["aiohttp"],
   classifiers=[
     "Programming Language :: Python :: 3",
-    "License :: MIT License",
+    "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
   ],
   project_urls={
