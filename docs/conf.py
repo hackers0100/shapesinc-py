@@ -4,7 +4,7 @@ import sys
 from shapesinc import __version__
 
 project = 'shapesinc-py'
-copyright = '2021, Rishiraj0100'
+copyright = '2025, Rishiraj0100'
 author = 'Rishiraj0100'
 
 # The short X.Y version
