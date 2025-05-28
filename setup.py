@@ -41,7 +41,7 @@ setuptools.setup(
     "Operating System :: OS Independent",
   ],
   project_urls={
-    "Documentation": "https://shapesinc.rtfd.io/",
+    "Documentation": "https://shapesinc-py.rtfd.io/",
     "Issue tracker": "https://github.com/Rishiraj0100/shapesinc-py/issues"
   },
   python_requires=">=3.8",
