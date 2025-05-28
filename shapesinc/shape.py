@@ -78,7 +78,7 @@ class ShapeBase:
       message=Message.new(message)
     return self.make_request([message.to_dict()], headers)
 
-  def make_request(self, message: list[dict[str, str]], headers: dict[str, str]) -> PromptResponse:
+  def make_request(self, message: typing.List[typing.Dict[str, str]], headers: typing.Dict[str, str]) -> PromptResponse:
     """The method which is implemented to make requests to API
 
     Raises
@@ -144,7 +144,7 @@ class Shape(ShapeBase):
     """
     return super().prompt(*args, **kwargs)
 
-  def make_request(self, messages: list[dict[str, str]], headers: dict[str, str]) -> PromptResponse:
+  def make_request(self, messages: typing.List[typing.Dict[str, str]], headers: typing.Dict[str, str]) -> PromptResponse:
     req = request.Request(
       BASE_HTTP_URL+"/chat/completions",
       data = json.dumps({
@@ -220,7 +220,7 @@ class AsyncShape(ShapeBase):
       Error raised by shapes.inc API.
     """
     return await super().prompt(*args, **kwargs)
-  async def make_request(self, messages: list[dict[str, str]], headers: dict[str, str]) -> PromptResponse:
+  async def make_request(self, messages: typing.List[typing.Dict[str, str]], headers: typing.Dict[str, str]) -> PromptResponse:
     async with aiohttp.ClientSession() as ses:
       data = await ses.post(
         BASE_HTTP_URL+"/chat/completions",
