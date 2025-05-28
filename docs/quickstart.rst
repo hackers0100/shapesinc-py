@@ -23,8 +23,8 @@ Initialising
 
 Then we will send a message.
 
-Creating a slashcommand
------------------------
+Messaging the shape
+----------------------
 
 .. code-block:: python3
 
