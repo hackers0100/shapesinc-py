@@ -43,7 +43,7 @@ class ShapeBase:
 
   @property
   def type(self) -> typing.Literal["SYNCHRONOUS", "ASYNCHRONOUS"]:
-    """Returns whether the instance is configured for asynchronous environment or synchronous"""
+    """tells whether the instance is configured for asynchronous environment or synchronous"""
     raise NotImplementedError
 
   @property
@@ -61,17 +61,6 @@ class ShapeBase:
     return "shapesinc/"+self.username
     
   def prompt(self, message: Message, user: User = None, channel: Channel = None) -> typing.Union[PromptResponse, typing.Awaitable[PromptResponse]]:
-    """Send a prompt through the shape
-    
-    Parameters
-    -----------
-    message: Union[:class:`shapesinc.abc.Message`, :class:`~str`]
-      The message which is to be sent to the shape. Can be a :class:`shapesinc.abc.Message` or a string.
-    user: Optional[:class:`shapesinc.abc.ShapeUser`]
-      The user who is sending the message.
-    channel: Optional[:class:`shapesinc.abc.ShapeChannel`]
-      The channel in which the message is being sent. Used for context.
-    """
     headers = {
       "Authorization": f"Bearer {self.api_key}",
       "Content-Type": "application/json"
@@ -86,12 +75,18 @@ class ShapeBase:
     return self.make_request([message.to_dict()], headers)
 
   def make_request(self, message: list[dict[str, str]], headers: dict[str, str]) -> PromptResponse:
+    """The method which is implemented to make requests to API
+
+    Raises
+    -------
+    NotImplementedError
+    """
     raise NotImplementedError
 
 class Shape(ShapeBase):
   """Creates a shape for synchronous environment.
   
-  It is a subclass of :class:`shapesinc.shape.ShapeBase`
+  It is a subclass of :class:`shapesinc.ShapeBase`
 
   Parameters
   ------------
@@ -125,16 +120,16 @@ class Shape(ShapeBase):
     
     Parameters
     -----------
-    message: Union[:class:`shapesinc.abc.Message`, :class:`~str`]
-      The message which is to be sent to the shape. Can be a :class:`shapesinc.abc.Message` or a string.
-    user: Optional[:class:`shapesinc.abc.ShapeUser`]
+    message: Union[:class:`shapesinc.Message`, :class:`~str`]
+      The message which is to be sent to the shape. Can be a :class:`shapesinc.Message` or a string.
+    user: Optional[:class:`shapesinc.ShapeUser`]
       The user who is sending the message.
-    channel: Optional[:class:`shapesinc.abc.ShapeChannel`]
+    channel: Optional[:class:`shapesinc.ShapeChannel`]
       The channel in which the message is being sent. Used for context.
       
     Returns
     --------
-    :class:`shapesinc.abc.PromptResponse`
+    :class:`shapesinc.PromptResponse`
       The response of the prompt.
     """
     return super().prompt(*args, **kwargs)
@@ -155,7 +150,7 @@ class Shape(ShapeBase):
 class AsyncShape(ShapeBase):
   """Creates a shape for synchronous environment.
   
-  It is a subclass of :class:`shapesinc.shape.ShapeBase`
+  It is a subclass of :class:`shapesinc.ShapeBase`
 
   Parameters
   ------------
@@ -189,16 +184,16 @@ class AsyncShape(ShapeBase):
     
     Parameters
     -----------
-    message: Union[:class:`shapesinc.abc.Message`, :class:`~str`]
-      The message which is to be sent to the shape. Can be a :class:`shapesinc.abc.Message` or a string.
-    user: Optional[:class:`shapesinc.abc.ShapeUser`]
+    message: Union[:class:`shapesinc.Message`, :class:`~str`]
+      The message which is to be sent to the shape. Can be a :class:`shapesinc.Message` or a string.
+    user: Optional[:class:`shapesinc.ShapeUser`]
       The user who is sending the message.
-    channel: Optional[:class:`shapesinc.abc.ShapeChannel`]
+    channel: Optional[:class:`shapesinc.ShapeChannel`]
       The channel in which the message is being sent. Used for context.
       
     Returns
     --------
-    :class:`shapesinc.abc.PromptResponse`
+    :class:`shapesinc.PromptResponse`
       The response of the prompt.
     """
     return await super().prompt(*args, **kwargs)
@@ -215,3 +210,26 @@ class AsyncShape(ShapeBase):
       res = await data.json()
       
     return PromptResponse(**res)
+
+
+def shape(api_key: str, username: str, synchronous: bool = True) -> typing.Union[Shape, AsyncShape]:
+  """Creates a new instance for a shape if none exists; otherwise, returns the original instance.
+
+  Parameters
+  -----------
+  api_key: :class:`~str`
+    Your API key for shapes.inc
+  username: :class:`~str`
+    Username of the shape
+  synchronous: Optional[:class:`~bool`]
+    Whether the instance is to be configured for synchronous environment or asynchronous. Default: False
+  """
+  type = "ASYNCHRONOUS" if not synchronous else "SYNCHRONOUS"
+  model = ACTIVE_MODELS[type].get(username)
+  if model:
+    return model
+    
+  if synchronous:
+    return Shape(api_key, username)
+    
+  return AsyncShape(api_key, username)
