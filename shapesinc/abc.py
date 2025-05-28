@@ -11,6 +11,15 @@ if typing.TYPE_CHECKING:
 MISSING = object()
 
 class ABCBase:
+  """
+  .. container:: operations
+      .. describe:: x == y
+          Checks if the instance is same as other
+          
+      .. describe:: x != y
+          Checks if the instance is not same as other
+
+  """
   def __init__(self, id: str = MISSING):
     self.id = id
 
@@ -31,7 +40,10 @@ class ABCBase:
   
   def __eq__(self, o):
     if not hasattr(o, "id"): return False
-    return self.id == o.id
+    return self.id == o.id and self.__class__ == o.__class__
+
+  def __ne__(self, o):
+    return not self == o
 
 class ShapeUser(ABCBase):
   """User for shape
@@ -39,16 +51,16 @@ class ShapeUser(ABCBase):
   Parameters
   -----------
   id: Optional[:class:`~str`]
-    ID of the user, randomly generated if not given
+    ID of the user
   """
 
 class ShapeChannel(ABCBase):
-  """Channel for shape. Used fpr context
+  """Channel for shape. Used for context
   
   Parameters
   -----------
   id: Optional[:class:`~str`]
-    ID of the channel, randomly generated if not given
+    ID of the channel
   """
 
 
