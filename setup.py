@@ -45,5 +45,6 @@ setuptools.setup(
     "Issue tracker": "https://github.com/Rishiraj0100/shapesinc-py/issues"
   },
   python_requires=">=3.8",
-  license="MIT"
+  license="MIT",
+  url="https://github.com/Rishiraj0100/shapesinc-py"
 )
