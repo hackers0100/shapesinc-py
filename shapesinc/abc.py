@@ -11,12 +11,16 @@ if typing.TYPE_CHECKING:
 MISSING = object()
 
 class ABCBase:
-  """
+  """Base class for objects in this module
+  
   .. container:: operations
+  
       .. describe:: x == y
+      
           Checks if the instance is same as other
           
       .. describe:: x != y
+      
           Checks if the instance is not same as other
 
   """
