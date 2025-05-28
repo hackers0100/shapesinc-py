@@ -240,7 +240,7 @@ class AsyncShape(ShapeBase):
     return PromptResponse(shape=self, **res)
 
 
-def shape(api_key: str, username: str, synchronous: bool = True) -> typing.Union[Shape, AsyncShape]:
+def shape(api_key: str, username: str, *, synchronous: bool = True) -> typing.Union[Shape, AsyncShape]:
   """Creates a new instance for a shape if none exists; otherwise, returns the original instance.
 
   Parameters
@@ -251,6 +251,13 @@ def shape(api_key: str, username: str, synchronous: bool = True) -> typing.Union
     Username of the shape
   synchronous: Optional[:class:`~bool`]
     Whether the instance is to be configured for synchronous environment or asynchronous. Default: False
+  
+  Returns
+  --------
+  :class:`shapesinc.Shape`
+    If the instance is configured for synchronous environment.
+  :class:`shapesinc.AsyncShape`
+    If the instance is configured for asynchronous environment.
   """
   type = "ASYNCHRONOUS" if not synchronous else "SYNCHRONOUS"
   model = ACTIVE_MODELS[type].get(username)
