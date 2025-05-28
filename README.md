@@ -14,7 +14,7 @@ pip install git+https://github.com/Rishiraj0100/shapesinc-py.git
 
 ## Examples
 
-synchronous example
+### Synchronous Shape Example
 ```py
 from shapesinc import (
   shape,
@@ -31,7 +31,7 @@ while True:
   r = my_shape.prompt(inp, user = user, channel=channel)
   print(r.choices[0].message)
 ```
-asynchronous example
+### Asynchronous Shape Example
 ```py
 from shapesinc import (
   shape,
@@ -52,3 +52,23 @@ async def run():
 import asyncio
 asyncio.run(run())
 ```
+### Image Examples
+```py
+from shapesinc import Message, MessageContent, ContentType as C
+
+msg = Message.new("Explain this image!", [dict(url = "URL OF IMAGE", type = c.image)])
+
+resp = my_shape.prompt(msg)
+```
+### Audio Messages
+```py
+from shapesinc import Message, MessageContent, ContentType as C
+
+msg = Message.new([dict(url = "URL OF AUDIO FILE", type = c.audio)])
+
+resp = my_shape.prompt(msg)
+```
+
+## Note
+- When both audio and image files are given in one message, only audio will be processed!
+- Commands like `!wack` can be normally used with `Shape.prompt` method.
