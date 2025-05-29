@@ -1,7 +1,7 @@
 from .abc import (
   ShapeUser,
   ShapeChannel,
-   Message,
+  Message,
   MessageContent,
   PromptResponse,
   ContentType,
@@ -16,4 +16,4 @@ from .shape import (
 )
 
 
-__version__ = "0.1.1"
+__version__ = "0.1.2"
