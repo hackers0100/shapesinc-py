@@ -5,6 +5,7 @@ Welcome to shapesinc.py documentation
    :caption: Contents:
 
    quickstart
+   examples
    api
 
 Support
