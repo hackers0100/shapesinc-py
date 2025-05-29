@@ -64,7 +64,7 @@ resp = my_shape.prompt(msg)
 ```py
 from shapesinc import Message, MessageContent, ContentType as C
 
-msg = Message.new([dict(url = "URL OF AUDIO FILE", type = c.audio)])
+msg = Message.new(files = [dict(url = "URL OF AUDIO FILE", type = c.audio)])
 
 resp = my_shape.prompt(msg)
 ```
