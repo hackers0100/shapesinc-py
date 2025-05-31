@@ -14,6 +14,4 @@ from .shape import (
   AsyncShape,
   shape
 )
-
-
-__version__ = "0.1.2"
+from .__info__ import __version__
