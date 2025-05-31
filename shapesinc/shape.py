@@ -1,10 +1,12 @@
 import aiohttp
 import json
+import sys
 import typing
 import urllib.request as request
 
 from urllib.error import HTTPError
 
+from .__info__ import __version__
 from .abc import (
   ShapeUser as User,
   ShapeChannel as Channel,
@@ -14,6 +16,8 @@ from .abc import (
   RateLimitError
 )
 
+vi = sys.version_info
+PYTHON_VERSION = f"{vi.major}.{vi.minor}.{vi.micro}{vi.releaselevel}{vi.serial}".split("final")[0]
 
 BASE_HTTP_URL = "https://api.shapes.inc/v1"
 
@@ -145,6 +149,7 @@ class Shape(ShapeBase):
     return super().prompt(*args, **kwargs)
 
   def make_request(self, messages: typing.List[typing.Dict[str, str]], headers: typing.Dict[str, str]) -> PromptResponse:
+    headers["User-Agent"] = f"Shapes.inc API Wrapper Py using Python/{PYTHON_VERSION} shapesinc-py/{__version__}"
     req = request.Request(
       BASE_HTTP_URL+"/chat/completions",
       data = json.dumps({
