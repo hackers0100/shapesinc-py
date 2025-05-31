@@ -6,7 +6,7 @@ with open("README.md", "r") as fh:
 
 version = ''
 
-with open("shapesinc/__init__.py") as f:
+with open("shapesinc/__info__.py") as f:
   version = re.search(r'^__version__\s*=\s*[\'"]([^\'"]*)[\'"]', f.read(), re.MULTILINE).group(1)
 
 if version.endswith(('a', 'b', 'rc')):
