@@ -4,7 +4,12 @@ from .abc import (
   Message,
   MessageContent,
   PromptResponse,
-  ContentType,
+  ContentType
+)
+from .http import (
+  RouteBase,
+  Route,
+  AsyncRoute,
   APIError,
   RateLimitError
 )
