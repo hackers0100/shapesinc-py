@@ -21,7 +21,7 @@ Shape
 .. attributetable:: shapesinc.Shape
 
 .. autoclass:: shapesinc.Shape
-    :members: prompt
+    :members:
 
 
 AsyncShape
@@ -30,7 +30,7 @@ AsyncShape
 .. attributetable:: shapesinc.AsyncShape
 
 .. autoclass:: shapesinc.AsyncShape
-    :members: prompt
+    :members:
 
 ABC
 ----
