@@ -66,6 +66,21 @@ Message
 
 .. autoclass:: shapesinc.abc.PromptResponse_Choice
 
+HTTP
+-----
+
+Routes
+~~~~~~~
+
+.. autoclass:: shapesinc.RouteBase
+    :members:
+
+.. autoclass:: shapesinc.Route
+    :members:
+
+.. autoclass:: shapesinc.AsyncRoute
+    :members:
+
 Errors
 ~~~~~~~
 
