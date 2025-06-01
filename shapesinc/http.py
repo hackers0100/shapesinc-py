@@ -10,7 +10,7 @@ vi = sys.version_info
 PYTHON_VERSION = f"{vi.major}.{vi.minor}.{vi.micro}{vi.releaselevel}{vi.serial}".split("final")[0]
 
 
-class RouteBase(str):
+class _RouteBase(str):
   """BaseClass for HTTP activities.
   It is a subclass of :class:`~str`
   """
@@ -62,7 +62,7 @@ class RouteBase(str):
     """
     raise NotImplementedError
 
-class Route(RouteBase):
+class _Route(RouteBase):
   """Used for synchronous purpose.
   It is a subclass of :class:`shapesinc.RouteBase`"""
   def request(
@@ -127,7 +127,7 @@ class Route(RouteBase):
     res = json.loads(req.read()) if is_json else req.read()
     return res
 
-class AsyncRoute(RouteBase):
+class _AsyncRoute(RouteBase):
   """Used for asynchronous purpose.
   It is a subclass of :class:`shapesinc.RouteBase`"""
   async def request(
@@ -188,9 +188,9 @@ class AsyncRoute(RouteBase):
     raise APIError(res)
     
 
-RouteBase=RouteBase().BASE
-Route=Route().BASE
-AsyncRoute=AsyncRoute().BASE
+RouteBase=_RouteBase().BASE
+Route=_Route().BASE
+AsyncRoute=_AsyncRoute().BASE
 
 class APIError(Exception):
   """Base class for API exceptions"""
