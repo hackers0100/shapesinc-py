@@ -72,13 +72,13 @@ HTTP
 Routes
 ~~~~~~~
 
-.. autoclass:: shapesinc.RouteBase
+.. autoclass:: shapesinc.RouteBase.__class__
     :members:
 
-.. autoclass:: shapesinc.Route
+.. autoclass:: shapesinc.Route.__class__
     :members:
 
-.. autoclass:: shapesinc.AsyncRoute
+.. autoclass:: shapesinc.AsyncRoute.__class__
     :members:
 
 Errors
