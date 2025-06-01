@@ -62,9 +62,9 @@ class _RouteBase(str):
     """
     raise NotImplementedError
 
-class _Route(RouteBase):
+class _Route(_RouteBase):
   """Used for synchronous purpose.
-  It is a subclass of :class:`shapesinc.RouteBase`"""
+  It is a subclass of :class:`shapesinc._RouteBase`"""
   def request(
     self,
     method: str = "POST",
@@ -127,9 +127,9 @@ class _Route(RouteBase):
     res = json.loads(req.read()) if is_json else req.read()
     return res
 
-class _AsyncRoute(RouteBase):
+class _AsyncRoute(_RouteBase):
   """Used for asynchronous purpose.
-  It is a subclass of :class:`shapesinc.RouteBase`"""
+  It is a subclass of :class:`shapesinc._RouteBase`"""
   async def request(
     self,
     method: str = "POST",
