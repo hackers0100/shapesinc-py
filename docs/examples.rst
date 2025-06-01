@@ -12,7 +12,7 @@ Synchronous Shape Example
       ShapeChannel as Channel
     )
     
-    my_shape = shape("API_KEY", "my_shape")
+    my_shape = shape("API_KEY", "my_shape", "app_id")
     user = User("u0")
     channel = Channel("cli")
     
@@ -32,7 +32,7 @@ Asynchronous Shape Example
       ShapeChannel as Channel
     )
     
-    my_shape = shape("API_KEY", "my_shape", synchronous=False)
+    my_shape = shape("API_KEY", "my_shape", "app_id", synchronous=False)
     user = User("u0")
     channel = Channel("cli")
     
