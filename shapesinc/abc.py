@@ -4,6 +4,11 @@ import typing
 from datetime import datetime
 from enum import IntEnum
 
+from .http import (
+  Route,
+  AsyncRoute
+)
+
 if typing.TYPE_CHECKING:
   from .shape import ShapeBase
 
@@ -55,8 +60,102 @@ class ShapeUser(ABCBase):
   Parameters
   -----------
   id: Optional[:class:`~str`]
-    ID of the user
+    ID of the user, (Randomly generated if not given)
+  auth_token: Optional[:class:`~str`]
+    Authorization token of user. Not required.
   """
+  def __init__(self, id: str=MISSING, auth_token: str = MISSING):
+    self.auth_token = auth_token
+    super().__init__(id)
+
+  @property
+  def auth_token(self) -> str:
+    return self.__auth_token
+    
+  @auth_token.setter
+  def auth_token(self, token: str):
+    self.__auth_token = token if token is not MISSING else None
+
+  def auth(self, shape):
+    """Used to authorise the user with shapes.inc
+    
+    Parameters
+    -----------
+    shape: Union[:class:`shapesinc.Shape`, :class:`shapesinc.AsyncShape`]
+      The shape through which the user is to be authorised.
+      
+    Returns
+    --------
+    List[:class:`~str`, Callable]
+      URL to authorise and authorisation function
+      
+    Example
+    --------
+    
+    .. code-block:: python3
+    
+        user = ShapeUser("999") # Any ID
+        url, authorise = user.auth(my_shape)
+        print("Click on this link and authorise yourself. ", url)
+        # A code will be shown on the page.
+        code = input("Enter the code: ")
+        # now if your shape is AsyncShape then you'd need to await the function
+        await authorise(code)
+        # if it isn't then you can normally proceed with
+        authorise(code)
+
+    """
+    def proc(code: str):
+      res = (Route/"auth/nonce").request(data=dict(
+        app_id = shape.app_id,
+        code = code
+      ))
+      self.auth_token = res["auth_token"]
+      
+    async def a_proc(code: str):
+      res = await (AsyncRoute/"auth/nonce").request(data=dict(
+        app_id = shape.app_id,
+        code = code
+      ))
+      
+      self.auth_token = res["auth_token"]
+    
+    meth = proc if shape.type == "SYNCHRONOUS" else a_proc
+    
+    return shape.auth_url, meth
+    
+  def send(
+    self,
+    shape,
+    message: "Message",
+    channel: "ShapeChannel" = None
+  ) -> "PromptResponse":
+    """Alias to `shape.prompt`
+    
+    Parameters
+    -----------
+    shape: Union[:class:`shapesinc.Shape`, :class:`shapesinc.AsyncShape`]
+      Shape
+    message: Union[:class:`~str`, :class:`shapesinc.Message`]
+      Message
+    channel: Optional[:class:`shapesinc.ShapeChannel`]
+      Channel
+      
+    Returns
+    --------
+    :class:`shapesinc.PromptResponse`
+      Message Response
+      
+    Example
+    --------
+    
+    .. code-block:: python3
+    
+        user.send(my_shape, "Hi.")
+        # or
+        await user.send(my_shape, "Hi.")
+    """
+    return shape.prompt(message, user=self, channel=channel)
 
 class ShapeChannel(ABCBase):
   """Channel for shape. Used for context
@@ -64,7 +163,7 @@ class ShapeChannel(ABCBase):
   Parameters
   -----------
   id: Optional[:class:`~str`]
-    ID of the channel
+    ID of the channel, (Randomly generated if not given)
   """
 
 
@@ -207,10 +306,24 @@ class Message:
       
     return cls(c, role)
     
+# Okay, Okay. I know. my naming sense is not too good.
+
+def _p(v):
+  if isinstance(v, dict):
+    return TypedDict(**v)
+  if isinstance(v, list):
+    return [_p(i) for i in v]
+  if isinstance(v, tuple):
+    return tuple(_p(i) for i in v)
+  if isinstance(v, set):
+    return {_p(i) for i in v}
+
+  return v
+
 class TypedDict(dict):
   def __init__(self, **kwargs):
     for k, v in kwargs.items():
-      v = getattr(self, "_parse_"+k, lambda x:x)(v)
+      v = getattr(self, "_parse_"+k,_p)(v)
       setattr(self, k, v)
       
     super().__init__(**kwargs)
@@ -267,13 +380,3 @@ class PromptResponse(TypedDict):
   _parse_choices = lambda _, cs: [PromptResponse_Choice(**c) for c in cs]
   _parse_usage = lambda _, u: PromptResponse_Usage(**u)
 
-
-class APIError(Exception):
-  """Base class for API exceptions"""
-  def __init__(self, data: dict):
-    self.message = data["error"]["message"]
-    self.data = data
-    super().__init__(data["error"]["message"])
-    
-class RateLimitError(APIError):
-  """Raised when api is being ratelimited"""
