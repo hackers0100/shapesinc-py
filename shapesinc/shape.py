@@ -1,6 +1,5 @@
 import typing
 
-from .__info__ import __version__
 from .abc import (
   ShapeUser as User,
   ShapeChannel as Channel,
@@ -267,7 +266,7 @@ class AsyncShape(ShapeBase):
 def shape(
   api_key: str,
   username: str,
-  app_id: str = None,
+  app_id: str = MISSING,
   *,
   synchronous: bool = True
 ) -> typing.Union[Shape, AsyncShape]:
