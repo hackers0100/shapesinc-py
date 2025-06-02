@@ -266,9 +266,13 @@ class Message:
   
   def to_dict(self) -> dict:
     """Converts itself into JSON format"""
+    if len(self.content)==1 and self.content[0].type==ContentType.text:
+      cont = self.content[0].content
+    else:
+      cont = [c.to_dict() for c in self.content]
     return {
       "role": self.role,
-      "content": [c.to_dict() for c in self.content]
+      "content": cont
     }
     
   @classmethod
