@@ -6,6 +6,9 @@ import urllib.request as request
 
 from urllib.error import HTTPError
 
+from .__info__ import __version__
+
+
 vi = sys.version_info
 PYTHON_VERSION = f"{vi.major}.{vi.minor}.{vi.micro}{vi.releaselevel}{vi.serial}".split("final")[0]
 
@@ -122,7 +125,7 @@ class _Route(_RouteBase):
       except: res = req.read()
       
       e = RateLimitError if req.code == 429 else APIError
-      raise e(res)
+      raise e(res, req.code)
 
     res = json.loads(req.read()) if is_json else req.read()
     return res
@@ -183,9 +186,9 @@ class _AsyncRoute(_RouteBase):
       return res
       
     if sc == 429:
-      raise RateLimitError(res)
+      raise RateLimitError(res, sc)
       
-    raise APIError(res)
+    raise APIError(res, sc)
     
 
 RouteBase=_RouteBase().BASE
@@ -194,12 +197,13 @@ AsyncRoute=_AsyncRoute().BASE
 
 class APIError(Exception):
   """Base class for API exceptions"""
-  def __init__(self, data: dict):
+  def __init__(self, data: dict, code: int):
     if isinstance(data, str):
       data={"error":{"message":data}}
     self.message = data["error"]["message"]
     self.data = data
-    super().__init__(data["error"]["message"])
+    self.code = code
+    super().__init__(f"[{code}]: "+data["error"]["message"])
     
 class RateLimitError(APIError):
   """Raised when API is being ratelimited"""
