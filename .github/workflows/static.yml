@@ -1,0 +1,142 @@
+# Simple workflow for deploying static content to GitHub Pages
+name: Deploy static content to Pages
+
+on:
+  # Runs on pushes targeting the default branch
+  # push:
+    # branches: ["master"]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
+# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  # Single deploy job since we're just deploying
+
+  build-sdist:
+    runs-on: ubuntu-latest
+
+    env:
+      PIP_DISABLE_PIP_VERSION_CHECK: 1
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 50
+        submodules: true
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.x"
+
+    - name: Build source distribution
+      run: |
+        pip install -U setuptools wheel pip
+        python setup.py sdist
+
+
+  build-wheels-matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      include: ${{ steps.set-matrix.outputs.include }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+      - run: pip install cibuildwheel==2.21.3
+      - id: set-matrix
+        run: |
+          MATRIX_INCLUDE=$(
+            {
+              cibuildwheel --print-build-identifiers --platform linux --arch x86_64,aarch64 | grep cp |  jq -nRc '{"only": inputs, "os": "ubuntu-latest"}' \
+              && cibuildwheel --print-build-identifiers --platform macos --arch x86_64,arm64 | grep cp |  jq -nRc '{"only": inputs, "os": "macos-latest"}' \
+              && cibuildwheel --print-build-identifiers --platform windows --arch x86,AMD64 | grep cp |  jq -nRc '{"only": inputs, "os": "windows-latest"}'
+            } | jq -sc
+          )
+          echo "include=$MATRIX_INCLUDE" >> $GITHUB_OUTPUT
+
+  build-wheels:
+    needs: build-wheels-matrix
+    runs-on: ${{ matrix.os }}
+    name: Build ${{ matrix.only }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJson(needs.build-wheels-matrix.outputs.include) }}
+
+    defaults:
+      run:
+        shell: bash
+
+    env:
+      PIP_DISABLE_PIP_VERSION_CHECK: 1
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 50
+        submodules: true
+
+  publish-docs:
+    needs: [build-sdist, build-wheels]
+    runs-on: ubuntu-latest
+
+    env:
+      PIP_DISABLE_PIP_VERSION_CHECK: 1
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    
+    steps:
+    - name: Checkout source
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 5
+        submodules: true
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.x"
+
+    - name: Build docs
+      run: |
+        pip install -e .[docs]
+        make htmldocs
+
+    - name: Checkout gh-pages
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 5
+        ref: gh-pages
+        path: docs/gh-pages
+
+    - name: Sync docs
+      run: |
+        rsync -a docs/_build/html/ docs/gh-pages/current/
+
+    - name: Setup Pages
+      uses: actions/configure-pages@v5
+    - name: Upload artifact
+      uses: actions/upload-pages-artifact@v3
+      with:
+        path: 'docs/gh-pages'
+    - name: Deploy to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v4
+        
